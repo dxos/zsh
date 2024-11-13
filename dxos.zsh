@@ -84,6 +84,9 @@ function pre () {
 # exec zsh
 # ```
 #
+# To remove:
+# `rm -rf /opt/homebrew/opt/zplug/repos/dxos`
+#
 
 CIRCLECI_ORG="dxos"
 CIRCLECI_REPO="dxos"
