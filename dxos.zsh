@@ -76,8 +76,19 @@ function pre () {
 # Set CIRCLECI_TOKEN
 #
 
+#
+# Local development: change .zplug/init.sh
+#
+# ```bash
+# zplug dxos/zsh/dxos.zsh, from:local
+# exec zsh
+# ```
+#
+
 CIRCLECI_ORG="dxos"
 CIRCLECI_REPO="dxos"
+
+CLEAR="\033[0J"
 
 function ci () {
   function ci_status () {
@@ -85,9 +96,9 @@ function ci () {
 
     # Get project.
     PROJECT_ID=$(curl -s -H "Circle-Token: $CIRCLECI_TOKEN" \
-      "https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=$(git branch --show-current)" | jq -r '.items.[0].id')
+      "https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=$(git branch --show-current)" | \
+      jq -r '.items.[0].id')
 
-    tput sc
     echo -e "Pipeline: $PROJECT_ID"
 
     # Get workflow.
@@ -95,30 +106,31 @@ function ci () {
     RESPONSE=$(curl -s -H "Circle-Token: $CIRCLECI_TOKEN" $URL)
 
     echo -e "$RESPONSE" | jq
-    tput rc
 
     STATUS=$(echo -e "$RESPONSE" | jq -r '.items.[0].status')
     if [ "$STATUS" = "failed" ]; then
       WORKFLOW_ID=$(echo -e "$RESPONSE" | jq -r '.items.[0].id')
 
       # Get failed job.
-      JOB_ID=$(curl -s -H "Circle-Token: $CIRCLECI_TOKEN" \
-        "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" | jq -r '.items[] | select(.status=="failed") | .job_number')
+      JOB_NUMBER=$(curl -s -H "Circle-Token: $CIRCLECI_TOKEN" \
+        "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" |
+        jq -r '.items | map(select(.status=="failed")) | .[0].job_number')
 
       URL=$(curl -s -H "Circle-Token: $CIRCLECI_TOKEN" \
-        "https://circleci.com/api/v2/project/${PROJECT_SLUG}/job/${JOB_ID}")
+        "https://circleci.com/api/v2/project/${PROJECT_SLUG}/job/${JOB_NUMBER}" | jq -r ".web_url")
     fi
   }
 
   while true; do
+    tput sc
     ci_status
+    tput rc
+
     case "$STATUS" in
       "running")
       ;;
       *)
-        echo ""
-        echo "Result $STATUS"
-        echo "$URL"
+        echo -e "${CLEAR}Result $STATUS: $URL"
         break
       ;;
     esac
