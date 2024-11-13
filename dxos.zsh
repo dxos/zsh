@@ -73,11 +73,11 @@ function pre () {
 }
 
 #
+# CI monitoring the PR associated with the current branch.
 # Set CIRCLECI_TOKEN
 #
-
-#
-# Local development: change .zplug/init.sh
+# Local development:
+# - change .zplug/init.sh
 #
 # ```bash
 # zplug dxos/zsh/dxos.zsh, from:local
@@ -130,7 +130,8 @@ function ci () {
       "running")
       ;;
       *)
-        echo -e "${CLEAR}Result $STATUS: $URL"
+        echo "${CLEAR}Result $STATUS"
+        echo "$URL"
         break
       ;;
     esac
