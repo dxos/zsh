@@ -16,9 +16,4 @@ Then run:
 zplug install
 ```
 
-## Commands
-
-### Git
-
-- `gs` - Interactively select and checkout git branches (`git-branch-select -l`).
-- `gb` - List all branches with their tracking info (`git branch -vv`).
+## Publishing
